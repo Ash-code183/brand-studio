@@ -10,12 +10,12 @@ A team of 6 specialist agents working in sequence, each handing off to the next.
 
 | # | Agent | Role | Output |
 |---|-------|------|--------|
-| 1 | Strategist | Deep discovery interview | ICP brief, positioning doc |
+| 1 | Strategist | Deep discovery interview | ICP brief, positioning doc, `docs/discovery-interview.md` |
 | 2 | Namer | Brand name generation + domain check | Shortlisted names + available domains |
 | 3 | Designer | Visual identity system | Palette, fonts, personality, voice |
 | 4 | Copywriter | Landing page copy | Hero, features, CTA, social proof |
-| 5 | Builder | HTML landing page + brand guidelines | landing.html, brand-guidelines.html |
-| 6 | Publisher | GitHub repo creation + push | Private GitHub repo URL |
+| 5 | Builder | HTML landing page + brand guidelines | `site/index.html`, `site/brand-guidelines.html` |
+| 6 | Publisher | Structured repo + GitHub push + Netlify deploy | Private GitHub repo URL + live site URL |
 
 ---
 
@@ -93,6 +93,80 @@ AMBITION: [3-year vision]
 Ask: "Does this capture it? Any corrections before I brief the naming team?"
 
 Store the confirmed brief as `BRAND_BRIEF` for all downstream agents.
+
+### Save Discovery Interview
+
+After the brief is confirmed, **immediately save** the full Q&A transcript as `docs/discovery-interview.md`. This is a permanent record of the founder's words — not a summary, but the actual questions asked and answers given. Use this template:
+
+```markdown
+# [Brand Name] — Brand Discovery Interview
+
+## Q1 — The Idea
+**In one sentence, what does your product or service DO for the person using it?**
+
+> [Founder's actual answer]
+
+## Q2 — The Problem
+**What's the pain, frustration, or inefficiency your customer has RIGHT NOW?**
+
+> [Founder's actual answer]
+
+## Q3 — The Customer
+**Describe your ideal first customer.**
+
+> [Founder's actual answer]
+
+## Q4 — The Market
+**Who else is trying to solve this?**
+
+> [Founder's actual answer]
+
+## Q5 — The Wedge
+**What's the ONE thing you do that nobody else does?**
+
+> [Founder's actual answer]
+
+## Q6 — The Outcome
+**When your product works perfectly, what changes for your customer?**
+
+> [Founder's actual answer]
+
+## Q7 — The Tone
+**Pick 3 words that describe how you want your brand to feel. One brand you admire?**
+
+> [Founder's actual answer]
+
+## Q8 — The Ambition
+**What's the 3-year vision?**
+
+> [Founder's actual answer]
+
+---
+
+## Confirmed Brand Brief
+
+- **WHAT IT DOES:** [one sentence]
+- **CUSTOMER:** [vivid person description]
+- **PAIN:** [specific before-state]
+- **ALTERNATIVES:** [2-3 named competitors]
+- **WEDGE:** [unfair advantage]
+- **OUTCOME:** [transformation]
+- **TONE:** [3 words]
+- **REFERENCE:** [brand name]
+- **AMBITION:** [3-year vision]
+
+## Chosen Tagline
+**"[tagline]"**
+
+## Chosen Identity
+- Aesthetic: [direction]
+- Palette: [hex values]
+- Fonts: [font names]
+- Voice: [voice pairs]
+- Logo: [description]
+```
+
+This file is updated as decisions are made through Agents 2–4 (tagline, identity, etc.) and saved to `$BRAND_DIR/docs/discovery-interview.md`.
 
 ---
 
@@ -484,14 +558,22 @@ Pages:
 
 ### Save Files + Generate PDF
 
-**Step 1: Save HTML files**
+**Step 1: Save HTML files into standardized repo structure**
 
 ```bash
-# Save to output directory
-cp /tmp/landing.html "$BRAND_DIR/[CHOSEN_NAME]-landing.html"
-cp /tmp/brand-guidelines.html "$BRAND_DIR/[CHOSEN_NAME]-brand-guidelines.html"
+# Create standardized repo structure
+REPO_DIR="$BRAND_DIR/[CHOSEN_NAME]-brand"
+mkdir -p "$REPO_DIR/site/images" "$REPO_DIR/docs"
+
+# Save site files
+cp /tmp/landing.html "$REPO_DIR/site/index.html"
+cp /tmp/brand-guidelines.html "$REPO_DIR/site/brand-guidelines.html"
+
+# Copy any generated images to site/images/
+cp "$BRAND_DIR/images/"*.{jpg,png,svg} "$REPO_DIR/site/images/" 2>/dev/null
+
 echo "FILES SAVED:"
-ls -lh "$BRAND_DIR/"
+ls -lhR "$REPO_DIR/"
 ```
 
 **Step 2: Generate brand guidelines PDF automatically**
@@ -553,52 +635,59 @@ Tell user: "Landing page and brand guidelines are open. PDF also saved alongside
 
 ---
 
-## Agent 6: Publisher — GitHub Repo
+## Agent 6: Publisher — Structured Repo + GitHub Push + Netlify Deploy
 
-The Publisher creates a private GitHub repo, writes a README, and pushes all brand assets.
+The Publisher assembles the standardized repo, deploys to Netlify, creates a private GitHub repo, and pushes all brand assets.
 
-### Repo Contents
+### Standardized Repo Structure
+
+**Every brand MUST follow this exact structure:**
 
 ```
 [chosen-name]-brand/
-├── README.md                    — project overview + brand summary
-├── landing.html                 — production landing page
-├── brand-guidelines.html        — printable brand book (open in browser)
-├── brand-guidelines.pdf         — ready-to-share PDF export
-├── brand-brief.md               — the ICP brief from Agent 1
-├── identity-system.md           — colours, fonts, voice, logo spec
-└── netlify.toml                 — deployment config (HTTP→HTTPS + security headers)
+├── site/                              # Deployable website (Netlify publish dir)
+│   ├── index.html                     # Production landing page
+│   ├── brand-guidelines.html          # Printable brand book (open in browser)
+│   └── images/                        # Generated illustrations, OG images
+│       ├── hero-bg.jpg
+│       ├── og-image.jpg
+│       └── ...
+├── docs/                              # Brand strategy & reference documents
+│   ├── discovery-interview.md         # Q&A transcript from Agent 1 (REQUIRED)
+│   ├── branding-context.md            # Full brief, identity, copy, research
+│   └── [any-other-docs].md            # Whitepaper, plans, etc.
+├── netlify.toml                       # Deploy config (publish = "site")
+└── README.md                          # Project overview + identity quick ref
 ```
 
-### README Template
+**Key rules:**
+- `site/` contains ONLY deployable files — HTML, images, SVGs. No markdown.
+- `docs/` contains ALL brand documentation — discovery interview, branding context, whitepapers, plans.
+- `docs/discovery-interview.md` is **REQUIRED** — it preserves the founder's exact words from Agent 1.
+- `netlify.toml` always sets `publish = "site"` so Netlify deploys from the right directory.
+- Images go in `site/images/` — never loose in the root.
 
-```markdown
-# [Brand Name]
+### Step 1: Assemble Docs
 
-[Tagline]
+Save the discovery interview and branding context into `docs/`:
 
-## What It Is
-[30-word positioning statement from brand brief]
+```bash
+REPO_DIR="$BRAND_DIR/[CHOSEN_NAME]-brand"
 
-## Brand Assets
-- `landing.html` — Open in browser for the landing page
-- `brand-guidelines.html` — Open in browser for the brand book
-- `brand-guidelines.pdf` — Print-ready PDF (auto-generated via puppeteer)
-
-## Deploy to Netlify
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy)
-
-1. Push this repo to GitHub
-2. Connect to Netlify
-3. Deploy — no build step needed (pure HTML)
-
-## Domain
-[CHOSEN_DOMAIN] — [registered/not yet registered]
+# discovery-interview.md was saved during Agent 1
+# Now save the full branding context (brief + identity + copy + research)
+cat > "$REPO_DIR/docs/branding-context.md" << 'EOF'
+# [Brand Name] — Brand Context & Findings
+[Full brand brief, identity system, landing copy, market research, references]
+EOF
 ```
 
-### netlify.toml Template
+### Step 2: Create netlify.toml
 
 ```toml
+[build]
+  publish = "site"
+
 [[redirects]]
   from = "http://[CHOSEN_DOMAIN]/*"
   to = "https://[CHOSEN_DOMAIN]/:splat"
@@ -614,18 +703,75 @@ The Publisher creates a private GitHub repo, writes a README, and pushes all bra
     Referrer-Policy = "no-referrer-when-downgrade"
 ```
 
-### Push to GitHub
+### Step 3: Create README.md
+
+```markdown
+# [Brand Name]
+
+**[Tagline]**
+
+[30-word positioning statement from brand brief]
+
+## Live Site
+
+**https://[CHOSEN_DOMAIN]**
+
+## Structure
+
+\```
+[chosen-name]-brand/
+├── site/                         # Landing page (deployed to Netlify)
+│   ├── index.html                # Production landing page
+│   ├── brand-guidelines.html     # Printable brand book
+│   └── images/                   # Generated illustrations
+├── docs/                         # Brand documents
+│   ├── discovery-interview.md    # Founder Q&A from brand studio
+│   └── branding-context.md       # Full brief, identity, copy, research
+├── netlify.toml                  # Netlify deploy config
+└── README.md
+\```
+
+## Deploy
+
+Connected to Netlify. Pushes to `main` auto-deploy from the `site/` directory.
+
+## Identity
+
+| Token | Value |
+|-------|-------|
+| Primary | `[hex]` |
+| Secondary | `[hex]` |
+| Accent | `[hex]` |
+| Display Font | [font name] |
+| Body Font | [font name] |
+
+## Domain
+
+`[CHOSEN_DOMAIN]` — [registrar] → Netlify DNS
+```
+
+### Step 4: Deploy to Netlify
+
+```bash
+cd "$REPO_DIR/site"
+netlify deploy --prod --dir=. --site-name=[chosen-name]
+```
+
+If `netlify` CLI is available, deploy directly. If not, tell the user to connect the GitHub repo to Netlify manually.
+
+### Step 5: Push to GitHub
 
 ```bash
 REPO_NAME="[chosen-name]-brand"
-cd "$BRAND_DIR"
+cd "$REPO_DIR"
 git init
-git add .
-git commit -m "Initial commit — [Brand Name] brand assets
+git add -A
+git commit -m "Initial commit — [Brand Name] brand assets and landing page
 
-- Landing page (landing.html)
-- Brand guidelines (brand-guidelines.html)
-- Brand brief and identity system docs
+- Landing page (site/index.html)
+- Brand guidelines (site/brand-guidelines.html)
+- Discovery interview Q&A (docs/discovery-interview.md)
+- Branding context and research (docs/branding-context.md)
 - Netlify deployment config
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
@@ -644,22 +790,27 @@ BRAND STUDIO — DELIVERY COMPLETE
 
 BRAND NAME:      [Chosen Name]
 TAGLINE:         [Chosen Tagline]
-DOMAIN:          [domain] ([registered ✅ / available 🟡 / not registered ⚠️])
+DOMAIN:          [domain] ([status])
 
-ASSETS:
-  Landing page   → $BRAND_DIR/[name]-landing.html
-  Brand book     → $BRAND_DIR/[name]-brand-guidelines.html
-  Brand book PDF → $BRAND_DIR/[name]-brand-guidelines.pdf
-  Brand brief    → $BRAND_DIR/brand-brief.md
-  Identity doc   → $BRAND_DIR/identity-system.md
+LIVE SITE:       https://[chosen-name].netlify.app
+GITHUB REPO:     https://github.com/[user]/[chosen-name]-brand (private)
 
-GITHUB REPO:     https://github.com/[user]/[name]-brand (private)
+REPO STRUCTURE:
+  site/index.html              — Landing page
+  site/brand-guidelines.html   — Brand book
+  site/images/                 — Generated illustrations
+  docs/discovery-interview.md  — Founder Q&A
+  docs/branding-context.md     — Brief + identity + copy + research
+  netlify.toml                 — Deploy config
+  README.md                    — Project overview
 
 NEXT STEPS:
-  1. Review landing.html — adjust copy as needed
-  2. Connect repo to Netlify for one-click deploy
-  3. Point [domain] to Netlify (run: bash ~/Desktop/namecheap.sh point [domain] netlify)
-  4. Set up Netlify Forms to capture leads
+  1. Review the live site
+  2. Point [domain] DNS to Netlify:
+     A record: @ → 75.2.60.5
+     CNAME: www → [chosen-name].netlify.app
+  3. Enable HTTPS in Netlify domain settings
+  4. Connect GitHub repo to Netlify for auto-deploy on push
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
