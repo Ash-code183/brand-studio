@@ -12,7 +12,8 @@ A team of 6 specialist agents working in sequence, each handing off to the next.
 |---|-------|------|--------|
 | 1 | Strategist | Deep discovery interview | ICP brief, positioning doc, `docs/discovery-interview.md` |
 | 2 | Namer | Brand name generation + domain check | Shortlisted names + available domains |
-| 3 | Designer | Visual identity system | Palette, fonts, personality, voice |
+| 3 | Designer | Visual identity + illustration direction | Palette, fonts, voice, illustration style, motion rules |
+| 3.5 | Illustrator | AI illustration generation | Hero, section backgrounds, OG image in `site/images/` |
 | 4 | Copywriter | Landing page copy | Hero, features, CTA, social proof |
 | 5 | Builder | HTML landing page + brand guidelines | `site/index.html`, `site/brand-guidelines.html` |
 | 6 | Publisher | Structured repo + GitHub push + Netlify deploy | Private GitHub repo URL + live site URL |
@@ -368,15 +369,162 @@ Describe how the wordmark should look:
 - Any colour split (e.g., first word in accent, rest in primary)
 - Letter-spacing guidance
 
+**Illustration Style Direction** (REQUIRED — feeds into Agent 3.5):
+Define the illustration world for the brand. This is NOT optional — every brand gets custom illustrations, not stock or template graphics.
+
+Choose ONE primary style based on the brand brief's tone words and reference brand:
+- **Anime / Cyberpunk** — Neon-lit scenes, anime characters, Makoto Shinkai vibes. For: tech, gaming, Gen-Z, crypto.
+- **Warm Painterly** — Soft gradients, golden hour light, human warmth. For: care, health, family, community.
+- **Bold Flat** — Geometric shapes, saturated colors, Memphis-inspired. For: SaaS, productivity, B2B.
+- **Editorial Illustration** — Sophisticated, magazine-quality art, full-bleed compositions. For: premium, luxury, content.
+- **3D / Isometric** — Floating objects, depth layers, glossy materials. For: fintech, enterprise, developer tools.
+- **Hand-drawn / Organic** — Textured, imperfect, human-feeling linework. For: food, local, artisanal, education.
+
+For the chosen style, specify:
+```
+ILLUSTRATION_STYLE: [chosen style]
+SCENE_DESCRIPTIONS:
+  hero: [describe the hero scene — characters, setting, mood, key elements]
+  features: [describe the features background — what environment/objects/metaphors]
+  how_it_works: [describe the process illustration — visual metaphor for the workflow]
+  cta: [describe the closing scene — emotional resonance, aspiration]
+  og_image: [describe the social sharing preview — brand-representative close-up]
+COLOR_MOOD: [dominant colors for illustration palette, pulled from brand palette]
+CHARACTERS: [describe any recurring character types — age, style, accessories, energy]
+KEY_OBJECTS: [signature objects that appear across illustrations — e.g., glowing glasses, floating labels, golden coins]
+```
+
+**Motion & Animation Guidelines:**
+Define how the brand moves (CSS animations for the landing page):
+```
+ANIMATION_SPEED: [fast/medium/slow — based on brand energy]
+HOVER_STYLE: [what happens on hover — lift, glow, color shift, scale]
+SCROLL_BEHAVIOR: [parallax, fade-in, slide-up, none]
+TRANSITION_EASING: [ease-out for playful, ease-in-out for premium, linear for minimal]
+SIGNATURE_MOTION: [one branded animation — e.g., "sunset gradient pulse", "floating labels", "neon flicker"]
+```
+
 **Tagline** (3 options):
 Generate 3 taglines based on the brand brief:
 1. Action-oriented: starts with a verb, customer-outcome focused
 2. Declarative: bold claim about what you are
 3. Question-based: provokes curiosity
 
-Display the full identity system and ask: "Which tagline fits best? Any adjustments to the palette or fonts before I brief the copywriter?"
+Display the full identity system and ask: "Which tagline fits best? Any adjustments to the palette, illustration style, or fonts before I brief the illustrator?"
 
-Store: `IDENTITY_SYSTEM` (all hex values, font names, voice pairs, chosen tagline)
+Store: `IDENTITY_SYSTEM` (all hex values, font names, voice pairs, illustration direction, motion rules, chosen tagline)
+
+---
+
+## Agent 3.5: Illustrator — AI Illustration Generation
+
+The Illustrator generates custom brand illustrations using AI image generation. Every brand gets unique, non-generic visuals — no stock photos, no template graphics.
+
+### Why This Agent Exists
+
+Generic landing pages use geometric SVG shapes, gradient blobs, or stock photos. These are instantly recognizable as AI-generated templates. Custom illustrations — generated from the brand's identity system and scene descriptions — create emotional resonance and visual distinctiveness that templates cannot achieve.
+
+### Image Generation Method
+
+Use **pollinations.ai** (free, no API key) to generate images via URL:
+
+```
+https://image.pollinations.ai/prompt/{URL_ENCODED_PROMPT}?width={W}&height={H}&nologo=true&seed={N}&enhance=true
+```
+
+Download each image with curl:
+```bash
+mkdir -p "$REPO_DIR/site/images"
+curl -s -o "$REPO_DIR/site/images/{filename}.jpg" "{URL}"
+```
+
+**Verify each image** — check `file` command output is JPEG/PNG, not JSON (rate limit error). If rate-limited, retry after a few seconds. Images under 1KB are usually errors.
+
+### Required Illustrations (5 minimum)
+
+Generate these based on `IDENTITY_SYSTEM.SCENE_DESCRIPTIONS` from Agent 3:
+
+| Image | Dimensions | Filename | Purpose |
+|-------|-----------|----------|---------|
+| **Hero background** | 1440x810 | `hero-bg.jpg` | Full-bleed hero section background |
+| **Features background** | 1440x600 | `features-bg.jpg` | Atmospheric behind feature cards (used at low opacity) |
+| **How-it-works** | 1440x500 | `how-bg.jpg` | Section background for process/steps |
+| **CTA background** | 1200x400 | `cta-bg.jpg` | Final call-to-action section |
+| **OG preview image** | 1200x630 | `og-image.jpg` | Social sharing preview when URL is shared |
+
+### Prompt Engineering for Brand Illustrations
+
+Build prompts from the Designer's `ILLUSTRATION_STYLE` and `SCENE_DESCRIPTIONS`. Always include:
+
+1. **Style prefix** — e.g., "anime illustration", "warm painterly", "bold flat design", "editorial illustration"
+2. **Scene description** — from SCENE_DESCRIPTIONS (characters, setting, objects, mood)
+3. **Color guidance** — "neon purple blue orange" or "warm earth tones green amber" from palette
+4. **Quality suffix** — "detailed", "sharp", "cinematic", "wide composition"
+5. **Brand-specific elements** — recurring characters, signature objects (from KEY_OBJECTS)
+
+**Anti-patterns:**
+- Never use "stock photo", "generic", "corporate"
+- Never request text in images (AI text generation is unreliable)
+- Always include character descriptions if the brand has personas
+- Include environmental details specific to the brand's ICP
+
+### Example Prompts by Style
+
+**Anime / Cyberpunk (like annotate.fun):**
+```
+anime illustration shinjuku tokyo night street two anime characters girl with
+glowing orange smart glasses holding camera boy with golden glasses holding
+smartphone UFO hovering above neon purple blue orange cyberpunk Makoto Shinkai
+detailed sharp cinematic wide
+```
+
+**Warm Painterly (like HealBuddy):**
+```
+warm painterly illustration elderly person and young companion sharing tea on
+a sunlit verandah golden hour light soft green garden background warm amber
+and forest green tones emotional genuine connection detailed illustration
+```
+
+**Bold Flat (SaaS product):**
+```
+bold flat design illustration floating dashboard screens data visualization
+geometric shapes saturated blue and coral colors clean lines Memphis style
+modern tech illustration wide composition
+```
+
+### Verification
+
+After generating all images, **visually verify each one** using the Read tool:
+```bash
+file "$REPO_DIR/site/images/"*.jpg  # Confirm all are JPEG
+ls -lh "$REPO_DIR/site/images/"     # Confirm reasonable file sizes (50KB-200KB)
+```
+
+Read each image file to visually confirm quality and brand alignment. If any image doesn't match the brand direction, regenerate with an adjusted prompt.
+
+### Output
+
+Display generated images to the user for approval:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ILLUSTRATIONS GENERATED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Style: [ILLUSTRATION_STYLE]
+
+  hero-bg.jpg      — [brief description]
+  features-bg.jpg  — [brief description]
+  how-bg.jpg       — [brief description]
+  cta-bg.jpg       — [brief description]
+  og-image.jpg     — [brief description]
+
+Saved to: $REPO_DIR/site/images/
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+Ask: "Happy with the illustrations? I can regenerate any that don't feel right before building the page."
+
+Store: `ILLUSTRATIONS_GENERATED = true`
 
 ---
 
