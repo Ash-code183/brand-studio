@@ -1,148 +1,156 @@
 # Brand Studio — Claude Code Skill
 
-Turn any raw idea into a complete brand in one session: name, domain, visual identity, landing page, and brand guidelines — all production-ready.
+Turn any raw idea into a complete brand — or audit an existing one and fix what's broken. Name, domain, visual identity, AI illustrations, landing page, brand guidelines — all production-ready, deployed, and pushed to GitHub.
 
-A team of 6 specialist agents working in sequence inside Claude Code, each handing off to the next.
+**Two modes:**
+- **Create Mode** — 7 agents build a brand from scratch end-to-end
+- **Audit Mode** — 5 agents scrape, score, diagnose, and fix an existing brand
 
 ---
 
 ## What it does
 
 ```
-Idea → Discovery interview → Brand names + domains → Visual identity system
-     → Landing page copy → Landing page HTML + Brand guidelines HTML + PDF → GitHub repo
+CREATE:  Idea → Discovery → Names → Identity → Illustrations → Copy → Landing Page → Deploy → GitHub
+AUDIT:   URL → Scrape → Score (10 dimensions) → Diagnose → Fix Plan → Implement → Before/After
 ```
 
 **You end up with:**
 - A shortlisted brand name with domain availability checked
-- A complete visual identity (palette, fonts, voice, tagline)
-- A production-ready landing page (no frameworks, no emoji icons, no generic AI templates)
+- A complete visual identity (palette, fonts, voice, tagline, illustration direction, motion rules)
+- 5+ AI-generated illustrations (hero, features, how-it-works, CTA, OG image)
+- A production-ready landing page (anti-slop design system, not generic AI templates)
 - A 9-page printable brand guidelines document
-- A PDF export of the brand guidelines (auto-generated via puppeteer)
-- A private GitHub repo with everything + Netlify deploy config
+- Discovery interview transcript preserving the founder's exact words
+- A private GitHub repo with standardized `site/` + `docs/` structure
+- Live Netlify deployment
 
 ---
 
 ## Agent Roster
 
+### Create Mode
+
 | # | Agent | Role | Output |
 |---|-------|------|--------|
-| 1 | **Strategist** | 8-question discovery interview | ICP brief, positioning doc |
-| 2 | **Namer** | 20 name candidates across 5 strategies, auto-screened and scored | Shortlist + domain availability + recommendation |
-| 3 | **Designer** | Visual identity system | Palette (hex), fonts, voice, tagline |
-| 4 | **Copywriter** | Landing page copy | Hero, context strip, truth points, testimonials, FAQ |
-| 5 | **Builder** | HTML files + PDF | `landing.html`, `brand-guidelines.html`, `brand-guidelines.pdf` |
-| 6 | **Publisher** | GitHub repo | Private repo with README + Netlify config |
+| 1 | **Strategist** | 8-question discovery interview | ICP brief, `docs/discovery-interview.md` |
+| 2 | **Namer** | 20 name candidates, auto-screened, domain checked | Shortlist + recommendation |
+| 3 | **Designer** | Visual identity + illustration direction + motion rules | Palette, fonts, voice, illustration style, animation system |
+| 3.5 | **Illustrator** | AI illustration generation via pollinations.ai | 5+ images in `site/images/` |
+| 4 | **Copywriter** | Landing page copy | Hero, features, CTA, testimonials, FAQ |
+| 5 | **Builder** | HTML landing page + brand guidelines | `site/index.html`, `site/brand-guidelines.html` |
+| 6 | **Publisher** | Structured repo + Netlify deploy + GitHub push | Live URL + repo URL |
+
+### Audit Mode
+
+| # | Agent | Role | Output |
+|---|-------|------|--------|
+| A1 | **Scanner** | Scrape site via firecrawl | Current identity snapshot |
+| A2 | **Scorer** | Rate 10 dimensions 0-10 | Scorecard with letter grade (A-F) |
+| A3 | **Diagnostician** | Identify issues with evidence | Prioritized issue list |
+| A4 | **Prescriber** | Map fixes to create-mode agents | Improvement plan |
+| A5 | **Surgeon** | Implement fixes, deploy, compare | Before/after scorecard, `docs/brand-audit.md` |
+
+---
+
+## Component & Template Sources
+
+### 21st.dev — Component Registry
+
+The largest marketplace of shadcn/ui-based React + Tailwind components (1.4M+ developers). Used for:
+- **Static HTML builds:** Reference 21st.dev components as design patterns and code inspiration
+- **React/Next.js builds:** Install directly via `npx shadcn@latest add "https://21st.dev/r/[slug]"`
+
+Key component categories: hero sections, pricing tables, testimonial layouts, FAQ accordions, CTA blocks, navigation bars, feature grids.
+
+Browse at: https://21st.dev
+
+### Framer Motion (Motion) — Animation Library
+
+The most popular React animation library (30.7K stars, 3.6M weekly downloads). Renamed from `framer-motion` to `motion` in 2025.
+
+**For static HTML:** Motion patterns are translated to CSS equivalents:
+- `whileInView` → IntersectionObserver + CSS class toggle
+- Spring physics → `cubic-bezier(0.34, 1.56, 0.64, 1)`
+- Stagger → `animation-delay` increments
+
+**For React builds:** Install via `npm install motion`, import from `motion/react`
+
+6 ready-to-use patterns included: staggered reveal, scroll-triggered sections, spring hover cards, number counters, parallax scroll, character-by-character text animation.
+
+---
+
+## Standardized Repo Structure
+
+Every brand produced by Brand Studio follows this exact structure:
+
+```
+[brand]-brand/
+├── site/                              # Deployable (Netlify publish dir)
+│   ├── index.html                     # Landing page
+│   ├── brand-guidelines.html          # 9-page printable brand book
+│   └── images/                        # AI-generated illustrations
+├── docs/                              # Brand documents
+│   ├── discovery-interview.md         # Founder Q&A (REQUIRED)
+│   ├── branding-context.md            # Full brief, identity, copy, research
+│   └── brand-audit.md                 # Audit report (if audit mode)
+├── netlify.toml                       # Deploy config (publish = "site")
+└── README.md                          # Identity quick reference
+```
+
+---
+
+## Anti-Slop Design System
+
+Every landing page is built against an explicit anti-generic checklist:
+
+**Banned:** Inter/Roboto/Arial fonts, purple gradients on white, equal-height card grids, centered-everything layouts, emoji icons, "powerful/seamless/comprehensive/robust" copy, scattered micro-animations, solid backgrounds without texture
+
+**Required:** Distinctive font pairing, dominant color + sharp accent, asymmetric layouts, one orchestrated reveal system (staggered fade-in-up), GPU-only animations (transform + opacity), grain texture overlay, gradient nav border on scroll
+
+Quality gate: "If someone sees it and immediately says 'AI generated' — it's slop."
 
 ---
 
 ## Usage
 
-This is a [Claude Code](https://claude.ai/code) skill. Install it and run `/brand-studio` in any Claude Code session.
-
-### Install
-
 ```bash
-# Clone into your Claude skills directory
+# Install
 git clone https://github.com/Ash-code183/brand-studio.git ~/.claude/skills/brand-studio
-```
 
-Then add to your Claude Code user settings (`~/.claude/settings.json`):
-
-```json
-{
-  "skills": [
-    {
-      "name": "brand-studio",
-      "path": "~/.claude/skills/brand-studio/SKILL.md"
-    }
-  ]
-}
-```
-
-### Run
-
-Open Claude Code and type:
-
-```
+# Create a brand from scratch
 /brand-studio
+
+# Audit an existing brand
+/brand-studio audit https://example.com
 ```
 
-That's it. The Strategist starts the interview immediately.
-
 ---
 
-## What the landing page actually looks like
+## Brands Built with Brand Studio
 
-No emoji icons. No radial gradient blobs. No 3-column card grids.
+| Brand | Repo | Live Site |
+|-------|------|-----------|
+| **annotate.fun** | [annotate-fun-brand](https://github.com/Ash-code183/annotate-fun-brand) | [annotate-fun.netlify.app](https://annotate-fun.netlify.app) |
+| **haire.world** | [haire-world-brand](https://github.com/Ash-code183/haire-world-brand) | [haire-world.netlify.app](https://haire-world.netlify.app) |
+| **HealBuddy** | [healbuddy-brand](https://github.com/Ash-code183/healbuddy-brand) | [healbuddy.org](https://healbuddy.org) |
+| **0to1.space** | [0to1-space](https://github.com/Ash-code183/0to1-space) | [0to1.space](https://0to1.space) |
 
-The Builder uses a specific editorial layout:
-- **Hero**: two-column with a real product moment card (daily summary, message thread, or dashboard mini-card) built from brand colors — not a placeholder
-- **Context strip**: dark background, 3 data points at large scale
-- **Truth points**: 4 numbered points in a 2×2 grid, typographic numbers, no icons
-- **How it works**: full-bleed brand primary color section
-- **Testimonials**: 1 featured card (60%) + 2 supporting (20% each), grid flush
-- **CTA**: dark rounded block, text + buttons side by side
-
----
-
-## What the Namer actually does
-
-Not just 20 names in a table. Before presenting anything:
-
-1. Reads the brand brief (ambition scope, tone, customer, category)
-2. Generates names across 5 strategies: Compound, Coined, Metaphor/Feeling, Short Punchy Noun, Unexpected Angle
-3. Auto-screens against hard rules (no -ify/-hub/-pal, no generic CareHub/HealthPal composites, no 4+ syllables)
-4. Scores survivors on 5 dimensions: Recall, Spell, Say, Own, Fit
-5. Presents with one-line rationale per name (not just the name)
-6. Gives you a top 3 recommendation before domain check
-7. Checks TLDs appropriate to the product: `.com`, `.io`, `.co`, `.ai`, `.care`, `.health`, `.in`
-
----
-
-## Prerequisites
-
-- **Claude Code** — [claude.ai/code](https://claude.ai/code)
-- **GitHub CLI** (`gh`) — for repo creation in Agent 6
-- **Node.js** — for PDF generation (puppeteer auto-installed on first run)
-- **namecheap.sh** *(optional)* — for domain availability checking and registration. Without it, domain check is skipped but everything else works.
-
----
-
-## Output files
-
-All outputs land in `~/Desktop/brand-studio-output/`:
-
-```
-~/Desktop/brand-studio-output/
-├── [brand-name]-landing.html           — production landing page
-├── [brand-name]-brand-guidelines.html  — printable brand book
-└── [brand-name]-brand-guidelines.pdf   — PDF export (auto-generated)
-```
-
-The GitHub repo (Agent 6) also includes:
-- `brand-brief.md` — the ICP brief from the discovery interview
-- `identity-system.md` — palette, fonts, voice, logo spec
-- `netlify.toml` — deployment config for one-click Netlify deploy
+**Web app:** [brande.live](https://brande-live.vercel.app) — Brand audit & creation as a service (Next.js + Z.ai GLM-5.1)
 
 ---
 
 ## Built with
 
-- [Claude Code](https://claude.ai/code) — the agent runtime
-- [Fontshare](https://www.fontshare.com/) — for display fonts (Cabinet Grotesk, Satoshi, etc.)
-- [Google Fonts](https://fonts.google.com/) — for body and mono fonts
-- [Puppeteer](https://pptr.dev/) — for PDF generation
-- [Netlify](https://netlify.com/) — for deployment
-
----
-
-## Example output
-
-HealBuddy — an AI elder companion service for Indian families:
-
-- Landing page: [healbuddy-landing.netlify.app](https://healbuddy-landing.netlify.app)
-- Identity: Forest green `#2D6A4F` + amber `#E07B39`, Cabinet Grotesk display, Plus Jakarta Sans body
+- [Claude Code](https://claude.ai/code) — Agent runtime
+- [21st.dev](https://21st.dev) — Component registry for agent templates
+- [Motion](https://motion.dev) — Animation library (formerly Framer Motion)
+- [Pollinations.ai](https://pollinations.ai) — AI illustration generation
+- [Firecrawl](https://firecrawl.dev) — Web scraping for audit mode
+- [Fontshare](https://www.fontshare.com/) — Display fonts
+- [Google Fonts](https://fonts.google.com/) — Body and mono fonts
+- [Netlify](https://netlify.com/) — Deployment
+- [Vercel](https://vercel.com/) — brande.live hosting
 
 ---
 

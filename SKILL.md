@@ -10,6 +10,128 @@ Turn any raw idea into a complete brand — or audit an existing brand and fix w
 
 ---
 
+## Component & Template Sources
+
+### 21st.dev — Component Registry for Agent Templates
+
+**What:** The largest marketplace of shadcn/ui-based React + Tailwind components, blocks, hooks, and agent templates. Used by 1.4M+ developers. Think "npm for design engineers."
+
+**When to use:** When building landing pages or brand assets that need production-grade UI components beyond basic HTML/CSS. Especially useful for:
+- Interactive hero sections with animated gradients
+- Pricing table components with toggle states
+- Testimonial carousels with motion
+- FAQ accordions with spring animations
+- Dashboard/product mockup cards
+- CTA sections with particle effects
+
+**How to integrate:**
+
+1. **Browse components** at https://21st.dev — search by category (hero, pricing, testimonial, CTA, nav)
+2. **Pick components** that match the brand's aesthetic direction from Agent 3 (Designer)
+3. **Install** via npx: `npx shadcn@latest add "https://21st.dev/r/[component-slug]"`
+4. **Customize** colors, fonts, and content to match the identity system
+
+**Agent Template Categories (most useful for Brand Studio):**
+- **Hero sections** — Animated text reveals, split layouts, gradient meshes, particle backgrounds
+- **Feature grids** — Bento grids, asymmetric layouts, card hover effects
+- **Pricing tables** — Toggle annual/monthly, highlighted tier, comparison tables
+- **Testimonials** — Marquee scrolling, card stacks, featured + supporting layouts
+- **CTAs** — Gradient backgrounds, floating elements, countdown timers
+- **Navigation** — Glass morphism navs, mobile drawers, scroll-aware headers
+
+**For static HTML builds** (our default output), reference 21st.dev components as **design inspiration and code patterns** rather than installing packages. Copy the CSS/HTML patterns into the self-contained landing page.
+
+**For Next.js/React builds** (like brande.live), install components directly.
+
+### Framer Motion (now Motion) — Animation Library
+
+**What:** The most popular React animation library (30.7K GitHub stars, 3.6M weekly npm downloads). Renamed from `framer-motion` to `motion` in 2025. Import from `motion/react`.
+
+**When to use:** When landing pages need production-grade animations beyond CSS. Framer Motion provides:
+- Hardware-accelerated animations (60fps on mobile)
+- Scroll-triggered reveals with `useScroll` + `useTransform`
+- Layout animations (shared layout transitions)
+- Gesture-based interactions (drag, hover, tap)
+- `AnimatePresence` for mount/unmount animations
+- Built-in `prefers-reduced-motion` support
+
+**Motion Patterns for Brand Studio:**
+
+```
+PATTERN 1: Staggered reveal (hero content)
+───────────────────────────────────────────
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6, delay: index * 0.1 }}
+/>
+
+PATTERN 2: Scroll-triggered section reveal
+───────────────────────────────────────────
+<motion.section
+  initial={{ opacity: 0, y: 40 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true, margin: "-100px" }}
+  transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+/>
+
+PATTERN 3: Card hover with spring physics
+───────────────────────────────────────────
+<motion.div
+  whileHover={{ y: -8, boxShadow: "0 20px 40px rgba(0,0,0,0.1)" }}
+  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+/>
+
+PATTERN 4: Number counter animation
+───────────────────────────────────────────
+const count = useMotionValue(0);
+const rounded = useTransform(count, Math.round);
+useEffect(() => { animate(count, targetValue, { duration: 2 }); }, []);
+
+PATTERN 5: Parallax scroll effect
+───────────────────────────────────────────
+const { scrollYProgress } = useScroll();
+const y = useTransform(scrollYProgress, [0, 1], [0, -200]);
+<motion.div style={{ y }} />
+
+PATTERN 6: Text character stagger (hero headline)
+───────────────────────────────────────────
+{text.split("").map((char, i) => (
+  <motion.span
+    key={i}
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: i * 0.03, ease: "easeOut" }}
+  >{char}</motion.span>
+))}
+```
+
+**Bundle optimization:** Use `LazyMotion` with `domAnimation` to cut bundle from 30KB to 15KB:
+```
+import { LazyMotion, domAnimation } from "motion/react";
+<LazyMotion features={domAnimation}>...</LazyMotion>
+```
+
+**For static HTML builds:** Translate Motion patterns into equivalent CSS animations:
+- `initial` + `animate` → CSS `@keyframes` + `animation`
+- `whileInView` → IntersectionObserver + CSS class toggle
+- `whileHover` → CSS `:hover` + `transition`
+- Spring physics → `cubic-bezier(0.34, 1.56, 0.64, 1)` for overshoot
+
+**For Next.js/React builds:** Install Motion directly: `npm install motion`
+
+### Integration into Agent Pipeline
+
+| Agent | 21st.dev Usage | Motion Usage |
+|-------|---------------|--------------|
+| Agent 3 (Designer) | Browse 21st.dev for aesthetic references when choosing direction | Define motion speed, easing, signature animation |
+| Agent 3.5 (Illustrator) | N/A | N/A |
+| Agent 5 (Builder - HTML) | Reference 21st.dev component patterns, translate to static HTML | Translate Motion patterns to CSS animations + IntersectionObserver |
+| Agent 5 (Builder - React) | `npx shadcn add` components directly, customize with brand tokens | `npm install motion`, use Motion components directly |
+| Agent A5 (Surgeon) | Replace generic components with 21st.dev equivalents | Add Motion animations to improve audit scores |
+
+---
+
 ## Agent Roster
 
 ### Create Mode (new brands)
