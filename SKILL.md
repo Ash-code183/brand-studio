@@ -1,12 +1,18 @@
-# Brand Studio — Full-Stack Brand Creation Agent
+# Brand Studio — Full-Stack Brand Creation & Audit Agent
 
-Turn any raw idea into a complete brand: name, domain, identity, landing page, and brand guidelines — all pushed to GitHub.
+Turn any raw idea into a complete brand — or audit an existing brand and fix what's broken. Name, domain, identity, landing page, brand guidelines, all pushed to GitHub.
 
-A team of 6 specialist agents working in sequence, each handing off to the next.
+**Two modes:**
+- **Create Mode** — Start from scratch. 7 agents build a brand end-to-end.
+- **Audit Mode** — Start from an existing website/brand. Scrape, score, diagnose, and improve.
+
+**Trigger Audit Mode** when the user says: "audit this brand", "improve this site", "review this landing page", provides a URL to evaluate, or mentions an existing brand that needs work.
 
 ---
 
 ## Agent Roster
+
+### Create Mode (new brands)
 
 | # | Agent | Role | Output |
 |---|-------|------|--------|
@@ -17,6 +23,16 @@ A team of 6 specialist agents working in sequence, each handing off to the next.
 | 4 | Copywriter | Landing page copy | Hero, features, CTA, social proof |
 | 5 | Builder | HTML landing page + brand guidelines | `site/index.html`, `site/brand-guidelines.html` |
 | 6 | Publisher | Structured repo + GitHub push + Netlify deploy | Private GitHub repo URL + live site URL |
+
+### Audit Mode (existing brands)
+
+| # | Agent | Role | Output |
+|---|-------|------|--------|
+| A1 | Scanner | Scrape site, extract branding signals | Current identity snapshot (colors, fonts, layout, copy) |
+| A2 | Scorer | Rate against anti-slop checklist | Scorecard (0-10 per dimension, overall grade) |
+| A3 | Diagnostician | Identify specific weaknesses + root causes | Prioritized issue list with evidence |
+| A4 | Prescriber | Recommend fixes with before/after mockups | Improvement plan (quick wins + deep fixes) |
+| A5 | Surgeon | Implement approved fixes | Updated files, deployed + pushed |
 
 ---
 
@@ -965,20 +981,241 @@ NEXT STEPS:
 
 ---
 
+---
+
+## AUDIT MODE — Brand Review & Improvement Pipeline
+
+Triggered when the user provides a URL to audit, says "audit", "review this brand", "improve this site", or mentions an existing brand that needs work.
+
+### Agent A1: Scanner — Extract Current Brand Identity
+
+**Step 1: Scrape the site** using firecrawl (preferred) or WebFetch:
+
+```bash
+# Use firecrawl with branding + screenshot + markdown formats
+mcp__firecrawl__firecrawl_scrape({
+  url: "[TARGET_URL]",
+  formats: ["branding", "screenshot", "markdown"],
+  waitFor: 5000,
+  screenshotOptions: { fullPage: true, viewport: { width: 1440, height: 900 } }
+})
+```
+
+**Step 2: Extract and record the current identity:**
+
+```
+CURRENT IDENTITY SNAPSHOT
+━━━━━━━━━━━━━━━━━━━━━━━━━
+Brand Name:     [extracted]
+Tagline:        [from meta/hero]
+Colors:         [extracted hex values with roles]
+Fonts:          [font families detected]
+Layout:         [light/dark, grid structure, section count]
+Copy tone:      [formal/casual/technical/friendly]
+Illustrations:  [stock/custom/none/SVG/photo]
+Motion:         [none/basic/sophisticated]
+OG tags:        [present/missing, image quality]
+Mobile:         [responsive/broken/partial]
+```
+
+Store as `CURRENT_BRAND` for all downstream agents.
+
+---
+
+### Agent A2: Scorer — Rate Against Anti-Slop Checklist
+
+Score each dimension 0-10. Be brutally honest — the value is in the truth, not politeness.
+
+**Scoring Dimensions:**
+
+| Dimension | What to check | 0 = | 10 = |
+|-----------|--------------|-----|------|
+| **Typography** | Font choices, hierarchy, sizing, spacing | Inter/Roboto/Arial, no hierarchy | Distinctive display + body pair, clear hierarchy, proper tracking |
+| **Color** | Palette cohesion, contrast, accent usage | No clear palette, poor contrast | Dominant color + sharp accent, WCAG compliant, CSS variables |
+| **Layout** | Structure, rhythm, asymmetry, breathing room | Centered-everything, uniform padding | Intentional rhythm breaks, asymmetric sections, grid-breaking elements |
+| **Copy** | Headline clarity, value prop, specificity | Generic ("powerful solution"), no clear ICP | Specific outcome, named ICP, every word earns its place |
+| **Illustration** | Visual quality, brand alignment, uniqueness | Stock photos, gradient blobs, or nothing | Custom illustrations that feel branded and intentional |
+| **Motion** | Animation quality, orchestration, purpose | None or scattered random animations | One orchestrated reveal system, GPU-only, purposeful |
+| **Technical** | OG tags, favicon, responsive, load speed | Missing OG, broken mobile, no favicon | Full OG suite, responsive, fast, proper meta tags |
+| **Trust** | Social proof, specificity, credibility signals | Generic "trusted by thousands", no proof | Specific testimonials, real names, quantified outcomes |
+| **Distinctiveness** | Would someone say "AI made this"? | Instantly recognizable as AI-generated template | Genuinely distinctive, feels like a real design agency made it |
+| **Emotional Impact** | Does it make you FEEL something? | Flat, forgettable, could be any product | Clear emotional response — excitement, trust, curiosity, warmth |
+
+**Display the scorecard:**
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BRAND AUDIT SCORECARD — [brand name]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Typography        [█████░░░░░]  5/10  — [one-line diagnosis]
+Color              [███████░░░]  7/10  — [one-line diagnosis]
+Layout             [████░░░░░░]  4/10  — [one-line diagnosis]
+Copy               [██████░░░░]  6/10  — [one-line diagnosis]
+Illustration       [██░░░░░░░░]  2/10  — [one-line diagnosis]
+Motion             [███░░░░░░░]  3/10  — [one-line diagnosis]
+Technical          [████████░░]  8/10  — [one-line diagnosis]
+Trust              [█████░░░░░]  5/10  — [one-line diagnosis]
+Distinctiveness    [███░░░░░░░]  3/10  — [one-line diagnosis]
+Emotional Impact   [████░░░░░░]  4/10  — [one-line diagnosis]
+
+OVERALL GRADE:     [X]/100  — [A/B/C/D/F]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Grade scale: A (80+) Ship-ready  B (65-79) Good foundation
+             C (50-64) Needs work  D (35-49) Major issues
+             F (<35) Rebuild recommended
+```
+
+Store as `AUDIT_SCORE`.
+
+---
+
+### Agent A3: Diagnostician — Identify Issues with Evidence
+
+For each dimension scoring below 7, produce a specific diagnosis:
+
+```
+ISSUE: [What's wrong]
+EVIDENCE: [Exact CSS property, copy line, or design element that proves it]
+IMPACT: [Why this hurts the brand — lost trust, confusion, forgettable]
+SEVERITY: CRITICAL / HIGH / MEDIUM / LOW
+```
+
+**Categorize all issues into:**
+
+**Quick Wins** (fix in < 30 minutes, high impact):
+- Swap fonts (e.g., Inter → a distinctive pair)
+- Add OG meta tags / favicon
+- Fix color contrast violations
+- Add animation system (fade-in-up on scroll)
+- Tighten headline copy
+
+**Deep Fixes** (need redesign thinking, 1-2 hours):
+- Restructure layout to break symmetry
+- Replace stock illustrations with AI-generated brand illustrations
+- Rewrite copy with specific ICP language
+- Add testimonial section with real personas
+- Build brand guidelines from scratch
+
+**Rebuild Triggers** (if 3+ of these are true, recommend full rebuild):
+- Overall score below 35
+- Typography, Layout, AND Illustration all below 4
+- No clear value proposition in first viewport
+- Site is not responsive
+- Zero trust signals (no testimonials, no specifics, no proof)
+
+Display the prioritized issue list and ask:
+"Here's what I found. Want me to fix the quick wins now, or do you want to review the full list first?"
+
+---
+
+### Agent A4: Prescriber — Improvement Plan
+
+For each approved fix, describe:
+
+```
+FIX: [What to change]
+BEFORE: [Current state — exact CSS, copy, or structure]
+AFTER: [Proposed state — exact replacement]
+TOOLS NEEDED: [Which create-mode agents to invoke — Designer for palette, Illustrator for images, Builder for HTML]
+```
+
+**Map fixes to create-mode agents:**
+
+| Fix Type | Agent to Invoke |
+|----------|----------------|
+| New color palette | Agent 3: Designer |
+| New fonts | Agent 3: Designer |
+| New illustrations | Agent 3.5: Illustrator |
+| New copy | Agent 4: Copywriter |
+| Rebuild landing page | Agent 5: Builder |
+| Brand guidelines | Agent 5: Builder (brand-guidelines.html) |
+| Deploy + push | Agent 6: Publisher |
+
+Ask: "Here's the improvement plan. Which fixes do you want me to implement? (All / Quick wins only / Pick specific ones)"
+
+---
+
+### Agent A5: Surgeon — Implement Fixes
+
+Execute the approved fixes by invoking the relevant create-mode agents:
+
+1. **If palette/fonts/illustrations change** → Run Agent 3 (Designer) + Agent 3.5 (Illustrator)
+2. **If copy changes** → Run Agent 4 (Copywriter)
+3. **If page rebuild** → Run Agent 5 (Builder) with the new identity system
+4. **Always finish with** → Agent 6 (Publisher) to deploy + push
+
+**Save the audit report** as `docs/brand-audit.md` in the repo:
+
+```markdown
+# [Brand Name] — Brand Audit Report
+
+**Audited:** [date]
+**URL:** [target URL]
+**Overall Grade:** [X/100] — [letter grade]
+
+## Scorecard
+[paste the full scorecard]
+
+## Issues Found
+[paste prioritized issue list]
+
+## Fixes Applied
+[list what was changed, with before/after]
+
+## Remaining Recommendations
+[anything not fixed in this session]
+```
+
+**After implementing fixes, re-run the Scanner + Scorer** to produce a before/after comparison:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BEFORE / AFTER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                    BEFORE    AFTER    CHANGE
+Typography           5/10     8/10     +3
+Color                7/10     8/10     +1
+Layout               4/10     8/10     +4
+Copy                 6/10     7/10     +1
+Illustration         2/10     7/10     +5
+Motion               3/10     8/10     +5
+Technical            8/10     9/10     +1
+Trust                5/10     7/10     +2
+Distinctiveness      3/10     8/10     +5
+Emotional Impact     4/10     7/10     +3
+
+OVERALL:            47/100   77/100   +30 (D → B)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+---
+
 ## Usage
 
 ```bash
-# Run the full brand studio (interactive)
-claude code # then type: /brand-studio
+# CREATE MODE — Build a brand from scratch
+/brand-studio
+# Starts at Agent 1 (Strategist) and walks through all 7 agents
 
-# Or invoke directly
-# The skill starts at Agent 1 and walks through all 6 agents
+# AUDIT MODE — Review and improve an existing brand
+/brand-studio audit https://example.com
+# Starts at Agent A1 (Scanner) and walks through the audit pipeline
+
+# You can also just say:
+# "audit healbuddy.org"
+# "review the annotate.fun landing page"
+# "improve this site: https://example.com"
 ```
 
 ## Notes
 
-- Each agent can be re-run independently if you want to iterate (e.g., "generate new names")
+- Each agent can be re-run independently if you want to iterate (e.g., "generate new names", "re-audit after changes")
 - The `namecheap.sh` CLI handles domain checking and registration
 - All outputs land in `~/Desktop/brand-studio-output/[brand-name]/`
 - The GitHub repo is always private — you control when/if it goes public
 - Landing page and brand book are pure HTML — no build step, works with Netlify, Vercel, GitHub Pages
+- Audit mode works on ANY website — not just brands you created
+- The audit scorecard is saved as `docs/brand-audit.md` in the repo for tracking improvements over time
